@@ -6,7 +6,7 @@ import 'package:path/path.dart';
 import 'idea.dart';
 
 class DataBaseHelper {
-  Future<Database> get database async {
+  static Future<Database> get database async {
     return openDatabase(
       join(await getDatabasesPath(), 'ideas_database.db'),
 
