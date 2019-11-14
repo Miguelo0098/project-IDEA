@@ -1,66 +1,103 @@
-import 'dart:async';
+import 'dart:io';
 
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'idea.dart';
+import 'dart:async';
 
-class DataBaseHelper {
-  static Future<Database> get database async {
-    return openDatabase(
-      join(await getDatabasesPath(), 'ideas_database.db'),
+class DatabaseHelper {
+  static DatabaseHelper _databaseHelper;
+  static Database _database;
 
-      onCreate: (db, version){
-        return db.execute(
-          "CREATE TABLE ideas(id INTEGER PRIMARY KEY, name TEXT, description TEXT)"
-        );
-      },
+  String ideaTable = 'idea_table';
+  String colId = 'id';
+  String colTitle = 'title';
+  String colDescription = 'description';
 
+  DatabaseHelper._createInstance();
+
+  factory DatabaseHelper(){
+    if (_databaseHelper == null){
+      _databaseHelper = DatabaseHelper._createInstance();
+    }
+    return _databaseHelper;
+  }
+
+
+  Future<Database> get database async{
+    if (_database == null) {
+      _database = await initializeDatabase();
+    }
+    return _database;
+  }
+
+  Future<Database> initializeDatabase() async{
+    Directory directory = await getApplicationDocumentsDirectory();
+    String path = directory.path + 'ideas.db';
+
+    var ideasDatabase = await openDatabase(
+      path,
       version: 1,
+      onCreate: _createDb,
     );
+
+    return ideasDatabase;
   }
 
-  Future<void> insertIdea(Idea idea) async{
-    final Database db = await database;
+  void _createDb(Database db, int newVersion) async {
+    await db.execute('CREATE TABLE $ideaTable($colId INTEGER PRIMARY KEY, $colTitle TEXT, $colDescription TEXT)');
 
-    await db.insert(
-      'ideas',
-      idea.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
+  }
+
+  Future<List<Map<String, dynamic>>> getIdeaMapList() async{
+    Database db = await this.database;
+    
+    var result = await db.query(ideaTable, orderBy: '$colTitle ASC');
+    return result;
+  }
+
+  Future<int> insertIdea(Idea idea) async{
+    Database db = await this.database;
+
+    var result = await db.insert(ideaTable, idea.toMap());
+    return result;
+  }
+
+  Future<int> updateIdea(Idea idea) async{
+    var db = await this.database;
+    var result = await db.update(
+      ideaTable, 
+      idea.toMap(), 
+      where: '$colId = ?',
+      whereArgs: [idea.id]
     );
+    return result;
   }
 
-  Future<List <Idea>> ideas() async{
-    final Database db = await database;
-
-    final List<Map<String, dynamic>> maps = await db.query('ideas');
-
-    return List.generate(maps.length, (i){
-      return Idea(
-        id: maps[i]['id'],
-        name: maps[i]['name'],
-        description: maps[i]['description'],
-      );
-    });
+  Future<int> deleteIdea(int id) async{
+    var db = await this.database;
+    int result = await db.rawDelete('DELETE FROM $ideaTable WHERE $colId = $id');
+    return result;
   }
 
-  Future<void> updateIdea(Idea idea) async {
-    final Database db = await database;
-
-    await db.update('ideas', 
-      idea.toMap(),
-      where: "id = ?",
-      whereArgs: [idea.id],
-    );
+  Future<int> getCount() async{
+    Database db = await this.database;
+    List<Map<String, dynamic>> x = await db.rawQuery('SELECT COUNT (*) from $ideaTable');
+    int result = Sqflite.firstIntValue(x);
+    return result;
   }
 
-  Future<void> deleteIdea(int id) async{
-    final Database db = await database;
+  Future<List<Idea>> getIdeaList() async{
+    var ideaMapList = await getIdeaMapList();
+    int count = ideaMapList.length;
 
-    await db.delete(
-      'dogs',
-      where: "id = ?",
-      whereArgs: [id],
-    );
+    List<Idea> ideaList = List<Idea>();
+    for (int i = 0; i < count; i++) {
+      ideaList.add(Idea.fromMapObject(ideaMapList[i]));
+    }
+
+    return ideaList;
   }
+
 }
