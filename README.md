@@ -1,16 +1,16 @@
-# project_idea
+# Project IDEA
 
-A new Flutter project.
+![issues](https://img.shields.io/github/issues/Miguelo0098/project-IDEA) ![forks](https://img.shields.io/github/forks/Miguelo0098/project-IDEA) ![stars](https://img.shields.io/github/stars/Miguelo0098/project-IDEA) ![license](https://img.shields.io/github/license/Miguelo0098/project-IDEA) [![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Fwww.twitter.com%2Fmiguelo0098)](https://www.twitter.com/miguelo0098)
 
-## Getting Started
+Project IDEA is a mobile app made with Flutter to save ideas that cross your mind. 
 
-This project is a starting point for a Flutter application.
+## Features
+These are some basic actions you can make with the app:
+  - Create an Idea
+  - Edit saved Ideas
+  - Delete an Idea
+  - List saved Ideas
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+License
+----
+This project is licensed under the GNU GPL v3 License - see the [LICENSE](LICENSE) file for details.
